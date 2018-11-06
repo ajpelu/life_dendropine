@@ -1,0 +1,77 @@
+---
+title: "Distribution plot of trees"
+author: "Antonio J. Pérez-Luque"
+date: "11/6/2018"
+output:
+  md_document:
+    variant: markdown_github
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Este es un ejemplo de como obtener los plots de la distribución espacial de los árboles dentro de cada parcela. 
+
+```{r}
+library("googlesheets")
+library("tidyverse")
+library("ggrepel")
+
+# library("devtools")
+# devtools::install_github("ajpelu/dendroEco")
+library("dendroEco")
+```
+
+
+
+```{r}
+gs_auth(new_user = TRUE) 
+
+f <- gs_title("data_dendro_LIFE")
+# See sheets 
+gs_ws_ls(f)
+
+# Read the data  
+df <- gs_read(f, ws = 'tree_data')
+
+# 
+# get_coords_trees <- function(angle, distance, x0, y0) {
+#   angle <- ifelse(angle <= 90, 90 - angle, 450 - angle)
+#   data.frame(x = x0 + distance * cos(angle / 180 * pi),
+#              y = y0+ distance * sin(angle / 180 * pi))
+# }
+
+# see stackoverflow questions 6862742
+gg_circle <- function(radius, xcenter, ycenter, color='black', fill=NA, ...){
+  x <- xcenter + radius*cos(seq(0,pi, length.out = 100))
+  ymax <- ycenter + radius*sin(seq(0, pi, length.out = 100))
+  ymin <- ycenter + radius*sin(seq(0, -pi, length.out = 100))
+  annotate("ribbon", x=x, ymin=ymin, ymax=ymax, color=color, fill=fill, ...)
+}
+
+ca <- df %>% filter(loc == "CANAR_LOW") %>% 
+    mutate(xcord = coordtrees(angle= azimuth_degree, distance = distance_m)$x,
+           ycord = coordtrees(angle= azimuth_degree, distance = distance_m)$y)
+  
+
+
+ca %>%  
+  ggplot(aes(x=xcord, y=ycord, label=treeCode)) + 
+  geom_point(aes(size=dbh1_cm), shape=21, fill='transparent') +
+  geom_point(size=0.1) +
+  xlim(-11,11) + ylim(-11,11) + 
+  geom_point(aes(x=0, y=0), color='green') +
+  theme_bw() +
+  gg_circle(radius = 10, xcenter = 0, ycenter = 0) +
+  gg_circle(radius = 7.21, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  gg_circle(radius = 8.14, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  gg_circle(radius = 9.75, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  gg_circle(radius = 9.86, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  theme(panel.grid.major=element_blank(), 
+        panel.grid.minor=element_blank(), 
+        strip.background = element_rect(colour = "black", fill ='transparent')) +
+  geom_text_repel()
+```
+
