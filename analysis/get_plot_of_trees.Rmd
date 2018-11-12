@@ -75,3 +75,34 @@ ca %>%
   geom_text_repel()
 ```
 
+
+```{r}
+f <- gs_title("finana")
+# See sheets 
+gs_ws_ls(f)
+
+# Read the data  
+df <- gs_read(f, ws = 'Sheet1')
+
+
+fi <- df %>% 
+    mutate(xcord = coordtrees(angle= azimuth_degree, distance = distance_m)$x,
+           ycord = coordtrees(angle= azimuth_degree, distance = distance_m)$y)
+  
+
+fi %>% filter(loc %in% c('FIN_RES_1', 'FIN_RES_2', 'FIN_RES_3', 'FIN_RES_4')) %>% 
+  ggplot(aes(x=xcord, y=ycord)) + 
+  geom_point(aes(size=dbh1_cm), shape=21, fill='transparent') +
+  geom_point(size=0.1) +
+  xlim(-16,16) + ylim(-16,16) + 
+  geom_point(aes(x=0, y=0), color='green') +
+  theme_bw() + 
+  facet_wrap(~loc, ncol=2) +
+  gg_circle(radius = 5, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  gg_circle(radius = 10, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  gg_circle(radius = 15, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  theme(panel.grid.major=element_blank(), 
+        panel.grid.minor=element_blank(), 
+        strip.background = element_rect(colour = "black", fill ='transparent')) 
+
+```
