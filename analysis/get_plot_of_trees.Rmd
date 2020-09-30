@@ -18,6 +18,7 @@ Este es un ejemplo de como obtener los plots de la distribución espacial de los
 library("googlesheets")
 library("tidyverse")
 library("ggrepel")
+library("pals")
 
 # library("devtools")
 # devtools::install_github("ajpelu/dendroEco")
@@ -74,6 +75,71 @@ ca %>%
         strip.background = element_rect(colour = "black", fill ='transparent')) +
   geom_text_repel()
 ```
+
+```{r}
+fi <- df %>% filter(loc == "FINANA") %>% 
+    mutate(xcord = coordtrees(angle= azimuth_degree, distance = distance_m)$x,
+           ycord = coordtrees(angle= azimuth_degree, distance = distance_m)$y)
+  
+ 
+
+fi %>% ggplot(aes(x=xcord, y=ycord, label=treeCode, fill = obs)) + 
+  geom_point(aes(size=dbase1_cm, colour = obs, fill = obs), shape=21) +
+  geom_point(size=0.1) +
+  xlim(-11,11) + ylim(-11,11) + 
+  geom_point(aes(x=0, y=0), color='green') +
+  theme_bw() +
+  gg_circle(radius = 10, xcenter = 0, ycenter = 0) +
+  # gg_circle(radius = 5, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  theme(panel.grid.major=element_blank(), 
+        panel.grid.minor=element_blank(), 
+        strip.background = element_rect(colour = "black", fill ='transparent')) +
+  geom_text_repel(aes(colour=obs)) + 
+  scale_fill_manual(values = alphabet(13)) 
+  
+  
+  
+  
+  # scale_colour_manual(values = coloritos)
+  # scale_fill_brewer(palette = alphabet) + 
+  #scale_colour_brewer(palette = alphabet)
+
+
+```
+
+
+```{r}
+ab <- df %>% filter(loc == "ABRUCENA") %>% 
+    mutate(xcord = coordtrees(angle= azimuth_degree, distance = distance_m)$x,
+           ycord = coordtrees(angle= azimuth_degree, distance = distance_m)$y)
+  
+ 
+
+ab %>% ggplot(aes(x=xcord, y=ycord, label=treeCode)) + 
+  geom_point(aes(size=dbase1_cm/10), shape=21) +
+  geom_point(size=0.1) +
+  xlim(-11,11) + ylim(-11,11) + 
+  geom_point(aes(x=0, y=0), color='green') +
+  theme_bw() +
+  gg_circle(radius = 10, xcenter = 0, ycenter = 0) +
+  # gg_circle(radius = 5, xcenter = 0, ycenter = 0, linetype = "dotted") +
+  theme(panel.grid.major=element_blank(), 
+        panel.grid.minor=element_blank(), 
+        strip.background = element_rect(colour = "black", fill ='transparent')) +
+  geom_text_repel(aes(colour=obs), 
+                  size = 2,
+                  segment.alpha = 0.6, 
+                  segment.size = .1, 
+                  direction = "both") 
+
+
++ 
+  scale_fill_manual(values = alphabet(13)) 
+  
+
+
+
+
 
 
 ```{r}
